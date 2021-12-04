@@ -236,7 +236,7 @@ Section /o "Dedicated Server Scripts" SecServer
 	  File /r /x .git ..\ss-rerelease-server\*
 	!endif
   !endif
-
+  
 SectionEnd
 
 SectionGroup /e "Handle starsiege:// URLs" SecProtocol
@@ -278,7 +278,7 @@ Function SetStarsiegeProtocolHandler
   WriteRegStr HKCR "Applications\$R0\shell\command" "" '"$INSTDIR\launch.exe" "%1"'
   
   
-  StrCpy "$ProtocolInstalled" "1"
+  StrCpy ${ProtocolInstalled} "1"
 FunctionEnd
 
 Section -Post
@@ -296,13 +296,31 @@ Section -Post
 	WriteRegStr ${PRODUCT_PATH_HIVE} ${PRODUCT_PATH_KEY} "Path" '"$INSTDIR"'
 	
 	; Add additional information if the protocol handler was installed
-	${If} "$ProtocolInstalled" == "1"
+	${If} ${ProtocolInstalled} == "1"
 	  WriteRegStr ${PRODUCT_PATH_HIVE} ${PRODUCT_PATH_KEY} "SupportedProtocols" "starsiege"
 	  WriteRegDWORD ${PRODUCT_PATH_HIVE} ${PRODUCT_PATH_KEY} "UseUrl" 0x1
 	${EndIf}
 	
 	
 	${LogWrite} "Writing uninstall information"
+	
+	; add/remove programs doesn't use date seperators - yyyymmdd
+	!insertmacro RuntimeAddRemoveDate $0
+	
+	WriteRegDWORD ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "EstimatedSize" 0xB7C00 ; 532 Mib
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "DisplayIcon" '"$INSTDIR\${PRODUCT_FILENAME}"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "DisplayName" '"${PRODUCT_NAME}"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "DisplayVersion" '"${PRODUCT_VERSION}"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "Version" '"${PRODUCT_VERSION}"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "InstallDate" '"$0"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "InstallLocation" '"$INSTDIR"'
+	WriteRegDWORD ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "NoModify" 0x1
+	WriteRegDWORD ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "NoRepair" 0x1
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "Publisher" '"$PRODUCT_PUBLISHER"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "UninstallString" '"$INSTDIR\Uninstall.exe"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "URLInfoAbout" '"${PRODUCT_WEB_SITE}"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "URLUpdateInfo" '"${PRODUCT_WEB_SITE}"'
+	WriteRegStr ${PRODUCT_UNINST_HIVE} ${PRODUCT_UNINST_KEY} "HelpLink" '"${PRODUCT_DISCORD_URL}"'	
 	
     ;Create uninstaller
     WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -313,7 +331,7 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecBase ${LANG_ENGLISH} "Installs this release of ${PRODUCT_GROUP} built on "
+  LangString DESC_SecBase ${LANG_ENGLISH} "Installs this release of ${PRODUCT_GROUP} built on " ; string finishes with <product_version>
   LangString DESC_SecExtras ${LANG_ENGLISH} "Installs community designed skins, preserved doumentation, and original tools"
   LangString DESC_SecServer ${LANG_ENGLISH} "A default dedicated server installation, includes scripts and doumentation"
   LangString DESC_SecProtocol ${LANG_ENGLISH} "Clicking on a starsiege:// URL will open your choice of Starsiege client"

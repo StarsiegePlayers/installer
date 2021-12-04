@@ -37,6 +37,17 @@
   !endif
 !endif
 
+!ifndef RuntimeAddRemoveDate
+  !define RuntimeAddRemoveDate "!insertmacro RuntimeAddRemoveDate"
+  !ifmacrondef RuntimeAddRemoveDate
+    !macro RuntimeAddRemoveDate output
+	  ${__DT_TEMP}
+	  ${GetTime} "" "L" $__D0 $__D1 $__D2 $__D3 $__D4 $__D5 $__D6
+	  StrCpy ${output} '$__D0$__D2$__D1'
+	!macroend
+  !endif
+!endif
+
 !ifndef RuntimeTime
   !define RuntimeTime "!insertmacro RuntimeTime"
   !ifmacrondef RuntimeTime
